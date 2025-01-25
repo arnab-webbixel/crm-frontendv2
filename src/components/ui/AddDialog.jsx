@@ -20,6 +20,7 @@ const AddDialog = ({ open, onClose, onSave, data, onChange, type }) => {
         { label: 'Role', name: 'role', isSelect: true, options: ['salesperson', 'caller', ] },
       ]
     : [
+        {label: 'name', name: 'name'},
         { label: 'Company Name', name: 'company_name' },
         { label: 'Phone', name: 'phone' },
         { label: 'Email', name: 'email' },

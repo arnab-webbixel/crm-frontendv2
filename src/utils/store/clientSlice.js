@@ -1,40 +1,32 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 // Thunk to fetch clients by userId
-export const fetchClientsById = createAsyncThunk(
-  'clients/fetchClientsById',
-  async (userId, { rejectWithValue }) => {
+export const fetchClients = createAsyncThunk(
+  'clients/fetchClients',
+  async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`http://46.202.163.75:3009/api/v1/client/${userId}`); 
-      return response.data.data;  
+      const response = await axios.get('https://crm.webbixel.com/clients/api/v1/');
+      console.log(response.data);
+      return response.data;
+
     } catch (error) {
-      // Return a specific error message if API call fails
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch clients.');
     }
   }
 );
-
 // Thunk to add a new client
 export const addClient = createAsyncThunk(
-  'clients/addClient',  // Action type string
-  async (newClient, { rejectWithValue, getState }) => {
-    const { user } = getState().auth; // Retrieve user from state
-
-    // Check if user has the correct permissions
-    if (newClient.userId !== user.id) {
-      return rejectWithValue('Unauthorized: You can only add clients for your account.');
-    }
-
+  'clients/addClient',
+  async (newClient, { rejectWithValue }) => {
     try {
-      const response = await axios.post('http://46.202.163.75:3009/api/v1/client', newClient, {
+      const response = await axios.post('https://crm.webbixel.com/clients/api/v1/', newClient, {
         headers: {
           'Content-Type': 'application/json',
         },
       });
-      return response.data.data;  // Return the newly added client on success
+      return response.data;  
     } catch (error) {
-      console.error('Error details:', error); 
-      return rejectWithValue(error.response?.data?.message || 'Failed to add client.');  // Handle errors
+      return rejectWithValue(error.response?.data?.message || 'Failed to add client.');
     }
   }
 );
@@ -42,7 +34,7 @@ export const addClient = createAsyncThunk(
 export const updateClient = (id, updatedClient) => async (dispatch) => {
   dispatch(clientActions.setLoading(true));
   try {
-    const response = await axios.put(`http://46.202.163.75:3009/api/v1/client/${id}`, updatedClient, {
+    const response = await axios.put(`https://crm.webbixel.com/clients/api/v1/${id}`, updatedClient, {
       headers: {
         'Content-Type': 'application/json',
       },
@@ -57,17 +49,17 @@ export const updateClient = (id, updatedClient) => async (dispatch) => {
 };
 
 // Thunk to delete a client
-export const deleteClient = (id) => async (dispatch) => {
-  dispatch(clientActions.setLoading(true));
-  try {
-    await axios.delete(`http://46.202.163.75:3009/api/v1/client/${id}`);
-    dispatch(clientActions.deleteClient(id));
-  } catch (error) {
-    dispatch(clientActions.setError(error.response?.data?.message || 'Failed to delete client.'));
-  } finally {
-    dispatch(clientActions.setLoading(false));
+export const deleteClient = createAsyncThunk(
+  'clients/deleteClient',
+  async (clientId, { rejectWithValue }) => {
+    try {
+      await axios.delete(`https://crm.webbixel.com/clients/api/v1/${clientId}`);
+      return clientId;  // Return the clientId to remove it from the state
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to delete client.');
+    }
   }
-};
+);
 
 // Define the initial state
 const initialState = {
@@ -90,65 +82,89 @@ const clientSlice = createSlice({
     setError(state, action) {
       state.error = action.payload;
     },
-    // setClients(state, action) {
-    //   state.clients = action.payload;
-    //   state.error = null;
-    // },
     addClient(state, action) {
       state.clients.push(action.payload);  // Add new client to the state
     },
     updateClient(state, action) {
       const { id, updatedClient } = action.payload;
-      const index = state.clients.findIndex((client) => client._id === id);  // Use _id instead of id
+      const index = state.clients.findIndex((client) => client._id === id);  // Find client by _id
       if (index !== -1) {
         state.clients[index] = { ...state.clients[index], ...updatedClient };
       }
     },
     deleteClient(state, action) {
-      state.clients = state.clients.filter((client) => client._id !== action.payload);  // Use _id
+      state.clients = state.clients.filter((client) => client._id !== action.payload);  
     },
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchClientsById.pending, (state) => {
+      // Fetch all clients
+      .addCase(fetchClients.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(fetchClientsById.fulfilled, (state, action) => {
+      .addCase(fetchClients.fulfilled, (state, action) => {
         state.loading = false;
-      if (Array.isArray(action.payload)) {
-         state.clients = action.payload;  // If it's already an array, assign it directly
-       } else {
-        console.warn('Expected an array but got:', action.payload);
-        state.clients = [action.payload];  // Wrap it in an array if it's not an array
-       }
+        // Ensure payload is an array
+        if (Array.isArray(action.payload)) {
+          state.clients = action.payload;  // Assign fetched clients to the state
+        } else {
+          console.warn('Expected an array but got:', action.payload);
+          state.clients = [];  // Fallback to empty array
+        }
       })
-      .addCase(fetchClientsById.rejected, (state, action) => {
+      .addCase(fetchClients.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload;  // Save error message if fetch fails
+        state.error = action.payload || 'Failed to fetch clients.';  // Set error if fetch fails
       })
-      // add client
+
+      // Add client
       .addCase(addClient.pending, (state) => {
-        console.log('addClient pending');
         state.loading = true;
         state.error = null;
       })
       .addCase(addClient.fulfilled, (state, action) => {
-        console.log('addClient fulfilled:', action.payload);
         state.loading = false;
-        state.clients.push(action.payload);  // Add new client to the clients array
+        state.clients.push(action.payload);  // Add new client to the state
       })
       .addCase(addClient.rejected, (state, action) => {
-        console.log('addClient rejected:', action.payload);
         state.loading = false;
-        state.error = action.payload;  // Set the error message
+        state.error = action.payload || 'Failed to add client.';  // Set error if adding client fails
+      })
+
+      // // Update client
+      // .addCase(updateClient.pending, (state) => {
+      //   state.loading = true;
+      //   state.error = null;
+      // })
+      // .addCase(updateClient.fulfilled, (state, action) => {
+      //   state.loading = false;
+      //   const { id, updatedClient } = action.payload;
+      //   const index = state.clients.findIndex((client) => client._id === id);
+      //   if (index !== -1) {
+      //     state.clients[index] = { ...state.clients[index], ...updatedClient };
+      //   }
+      // })
+      // .addCase(updateClient.rejected, (state, action) => {
+      //   state.loading = false;
+      //   state.error = action.payload || 'Failed to update client.';  // Set error if update fails
+      // })
+
+      // Delete client
+      .addCase(deleteClient.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(deleteClient.fulfilled, (state, action) => {
+        state.loading = false;
+        state.clients = state.clients.filter((client) => client._id !== action.payload);  // Remove client from state
+      })
+      .addCase(deleteClient.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || 'Failed to delete client.';  // Set error if delete fails
       });
-
-
-
   },
 });
-
 // Export actions and reducer
 export const clientActions = clientSlice.actions;
 export default clientSlice.reducer;

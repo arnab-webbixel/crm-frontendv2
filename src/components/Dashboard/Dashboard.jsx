@@ -59,11 +59,6 @@ useEffect(()=>{
 
   const handleLogout = () => {
     localStorage.removeItem('token');
-
-    // Optionally, reset Redux state here if you're using Redux for auth management
-    // dispatch(logoutUser());  // Assuming you have a logout action in your Redux slice
-
-    // Redirect the user to the login page
     navigate('/login');
   };
 
@@ -99,8 +94,6 @@ useEffect(()=>{
 
           </div>
 
-          {/* for header items in right side  */}
-          {/* for header icon */}
           <div className='flex gap-2 mr-6 cursor-pointer '>
              <NotificationsIcon className='w-7 h-'/>
              <NightlightRoundIcon 
@@ -160,9 +153,9 @@ className={`w-7 h-7 cursor-pointer ${darkMode ? 'text-yellow-400' : 'text-gray-5
 
 
         {/* Main content area */}
-        <div className="flex flex-1 flex-col gap-4  pt-0 bg-slate-400">
+        <div className="flex flex-1 flex-col gap-4  pt-0 bg-slate-400  ">
           {/* <MainDashboard/> */}
-          <div className='flex-1 p-4' >
+          <div className='flex-1 p-4  ' >
             <Outlet />
           </div>
 
@@ -170,15 +163,15 @@ className={`w-7 h-7 cursor-pointer ${darkMode ? 'text-yellow-400' : 'text-gray-5
         </div>
 
 
-        <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+        {/* <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
           <div className="grid auto-rows-min gap-4 md:grid-cols-3">
             <div className="aspect-video rounded-xl bg-muted/50" />
             <div className="aspect-video rounded-xl bg-muted/50" />
             <div className="aspect-video rounded-xl bg-muted/50" />
-          </div>
-          <div className="min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min" />
+          </div> */}
+          {/* <div className="min-h-[40vh] flex-1 rounded-xl bg-muted/50 md:min-h-min" /> */}
+        {/* </div> */}
           <Footer />
-        </div>
       </SidebarInset>
     </SidebarProvider>
 

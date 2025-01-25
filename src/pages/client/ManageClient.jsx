@@ -5,8 +5,9 @@ import EditIcon from '@mui/icons-material/Edit';
 import { Button } from '@mui/material';
 import AddDialog from '../../components/ui/AddDialog';
 import { useSelector, useDispatch } from 'react-redux';
-import {fetchClientsById, addClient, deleteClient} from "../../utils/store/clientSlice"
+import {fetchClients, addClient, deleteClient} from "../../utils/store/clientSlice"
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
+
 
 const ManageClient = () => {
    const dispatch = useDispatch();
@@ -16,7 +17,7 @@ const ManageClient = () => {
 
    React.useEffect(() => {
 
-      dispatch(fetchClientsById(user.id));
+      dispatch(fetchClients());
    }, [dispatch, user.id]);  
 
   const [addClientDialog, setAddClientDialog] = React.useState(false);
@@ -34,11 +35,6 @@ const ManageClient = () => {
     remarks: '',
     schedule_date: '',
     created_by: '',  
-    // updated_by: '',
-    // updated_date: null,
-    // staff_id: '',
-    // role: '',
-    userId: user.id,  // Automatically assign the logged-in user's ID
   });
 
   const handleAddClientDialogOpen = () => {
@@ -55,7 +51,7 @@ const ManageClient = () => {
       call_type: '',
       remarks: '',
       schedule_date: '',
-      userId: user.id,  // Reset userId when opening dialog
+      // userId: user.id,  
     });
   };
   const [editRow, setEditRow] = React.useState(null);  
@@ -65,111 +61,119 @@ const ManageClient = () => {
     const scrollLeft = gridRef.current?.scrollLeft;
     console.log('Scroll Left:', scrollLeft);
   };
-  const columns = React.useMemo( ()=>{
-    return [
-      {
-        field: 'company_name',
-        headerName: 'Company Name',
-        width: 180,
-        editable: true,
-      },
-      {
-        field: 'phone',
-        headerName: 'Phone',
-        width: 180,
-        editable: true,
-      },
-      {
-        field: 'email',
-        headerName: 'Email',
-        width: 200,
-        editable: true,
-      },
-      {
-        field: 'address',
-        headerName: 'Address',
-        width: 200,
-        editable: true,
-      },
-      {
-        field: 'industry_type',
-        headerName: 'Industry Type',
-        width: 150,
-        editable: true,
-      },
-      {
-        field: 'service_type',
-        headerName: 'Service Type',
-        width: 150,
-        editable: true,
-      },
-      {
-        field: 'call_type',
-        headerName: 'Call Type',
-        width: 150,
-        editable: true,
-      },
-      {
-        field: 'remarks',
-        headerName: 'Remarks',
-        width: 150,
-        editable: true,
-      },
-      {
-        field: 'whatsapp',
-        headerName: 'WhatsApp',
-        width: 150,
-        renderCell: (params) => (
-          <a
-            href={`https://wa.me/+91${params.row.phone}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ textDecoration: 'none', color: 'inherit' }}
-          >
-            <WhatsAppIcon style={{ color: 'green', cursor: 'pointer' }} />
-          </a>
-        ),
-      },
-      {
-        field: 'actions',
-        headerName: 'Actions',
-        width: 180,
-        renderCell: (params) => (
-          <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
-            <button onClick={() => handleUpdate(params.row)}><EditIcon /></button>
-            <button onClick={() => handleDelete(params.id)}><DeleteIcon /></button>
-          </div>
-        ),
-      },
-    ]
-
-    }, [])
+  const columns = React.useMemo(() => [
+    {
+      field: 'name',
+      headerName: 'name',
+      width: 120,
+      editable: false,
+    },
+    {
+      field: 'company_name',
+      headerName: 'Company Name',
+      width: 180,
+    },
+    {
+      field: 'phone',
+      headerName: 'Phone',
+      width: 180,
+      editable: false,
+    },
+    {
+      field: 'email',
+      headerName: 'Email',
+      width: 200,
+      editable: false,
+    },
+    {
+      field: 'address',
+      headerName: 'Address',
+      width: 200,
+      editable: true,
+    },
+    {
+      field: 'industry_type',
+      headerName: 'Industry Type',
+      width: 150,
+      editable: false,
+    },
+    {
+      field: 'service_type',
+      headerName: 'Service Type',
+      width: 150,
+      editable: false,
+    },
+    {
+      field: 'call_type',
+      headerName: 'Call Type',
+      width: 150,
+      editable: false,
+    },
+    {
+      field: 'remarks',
+      headerName: 'Remarks',
+      width: 180,
+      renderCell: (params) => (
+        <span>{params.value || 'No remarks'}</span>  // Display remarks or a default value
+      ),
+    },
+    {
+      field: 'whatsapp',
+      headerName: 'WhatsApp',
+      width: 150,
+      renderCell: (params) => (
+        <a
+          href={`https://wa.me/+91${params.row.phone}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ textDecoration: 'none', color: 'inherit' }}
+        >
+          <WhatsAppIcon style={{ color: 'green', cursor: 'pointer' }} />
+        </a>
+      ),
+    },
+    {
+      field: 'actions',
+      headerName: 'Actions',
+      width: 180,
+      renderCell: (params) => (
+        <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+          <button onClick={() => handleUpdate(params.row)}><EditIcon /></button>
+          <button onClick={() => handleDelete(params.id)}><DeleteIcon /></button>
+        </div>
+      ),
+    },
+  ], []);
     const rows = React.useMemo(() => {
       if (Array.isArray(clients) && clients.length > 0) {
         return clients.map((client) => {
-          // Fallback to an empty string or other default if client._id is missing
+          // Ensure client._id exists to serve as the unique identifier for the row
           const clientId = client._id || client.phone || client.email || 'default_id';
+          
+          // Convert the remarks array into a string of comments (if remarks exist)
+          const remarks = Array.isArray(client.remarks)
+            ? client.remarks.map((remark) => remark.comment).join(', ') 
+            : '';
+    
           return {
-            id: clientId,  // Ensure each row has a unique id
+            id: clientId,  // Unique identifier for each row
+            name: client.name,  
             company_name: client.company_name,
             phone: client.phone,
             email: client.email,
             address: client.address,
             industry_type: client.industry_type,
             service_type: client.service_type,
-            schedule_date: client.schedule_date,
             call_type: client.call_type,
-            remarks: Array.isArray(client.remarks)
-                      ? client.remarks.map(remark => remark.comment).join(', ') 
-                      : '',
-            whatsapp: client.phone,
+            schedule_date: client.schedule_date,
+            remarks: remarks,  // Concatenated remarks
+            whatsapp: client.phone,  // For WhatsApp link
           };
         });
       }
       return []; // Return an empty array if clients is empty or not an array
     }, [clients]);
     
-
     const handleDelete = (id) => {
       if (window.confirm('Are you sure you want to delete this client?')) {
         dispatch(deleteClient(id));
@@ -191,9 +195,34 @@ const ManageClient = () => {
     }
   
     try {
-      await dispatch(addClient(newClient));  // Await the dispatch to add client
-      handleAddClientClose();  // Close the dialog after successful client addition
+      const clientPayload = {
+        name: newClient.name.trim(), // Trim any leading or trailing spaces
+        company_name: newClient.company_name,
+        phone: newClient.phone,
+        email: newClient.email,
+        address: newClient.address,
+        landmark: newClient.landmark || '', // Optional field
+        website: newClient.website || '', // Optional field
+        industry_type: newClient.industry_type || '', // Optional field
+        service_type: newClient.service_type || '', // Optional field
+        call_type: newClient.call_type || '', // Optional field
+        remarks: newClient.remarks ? [{ comment: newClient.remarks }] : [], // Handle remarks array
+        schedule_date: newClient.schedule_date || null, // Allow null for optional fields
+        status: 'Pending', // Assuming 'Pending' is a default status
+        // customer_id: newClient.customer_id || null, // Assuming you might 
+      };
+  
+      // Dispatch the action to add the client to the store
+      // await dispatch(addClient(clientPayload));
+      const response = await dispatch(addClient(clientPayload));
+      console.log(response);
+  
+      // Close the Add Client dialog
+      handleAddClientClose();
+  
+      // Reset the newClient state after adding
       setNewClient({
+        name:'',
         company_name: '',
         phone: '',
         email: '',
@@ -205,15 +234,21 @@ const ManageClient = () => {
         call_type: '',
         remarks: '',
         schedule_date: '',
-        created_by: user.id,  // Automatically assign the logged-in user's ID
-        assigned_by: user.id,  // If this refers to the user who is managing the client
-        staff_id: '', 
-        userId: user.id,  // Reset to the logged-in user ID
-      });  // Reset form fields to their initial values
+        // userId: user.id,
+      });
+  
+      // Optional: Trigger fetchClients if you want to immediately update the grid after adding a client
+      dispatch(fetchClients());
     } catch (error) {
       console.error('Error adding client:', error);
-      // Optionally, you could show an error message or handle errors here
+      alert('Failed to add client. Please try again.');
+
     }
+  };
+
+  const handleUpdate = (client) => {
+    setEditRow(client);  
+    setEditClientDialog(true);  
   };
 
   // Handle changes in Add/Edit Client fields
@@ -237,11 +272,11 @@ const ManageClient = () => {
   };
 
   return (
-    <div>
+    <div className='h-[90vh]'>
       
       <h1>ManageClient</h1>
       <div className="datagrid-container" ref={gridRef}
-      onScroll={handleScroll} style={{ width: '100%', marginBottom: '20px', overflowX: '' }}>
+      onScroll={handleScroll} style={{ width: '100%', marginBottom: '20px', overflowX: '',}}>
       
             <DataGridDemo
               rows={rows}
@@ -250,12 +285,10 @@ const ManageClient = () => {
               getRowId={(row) => row._id}
               checkboxSelection
               disableSelectionOnClick
-              style={{ minWidth: 1000 }} // Make sure grid is wide enough
+              style={{ minWidth: 1000 }} 
             />
 
       </div>
-      {/* Add client  */}
-       {/* Add Client Button */}
        <Button
         variant="contained"
         color="primary"
@@ -271,7 +304,7 @@ const ManageClient = () => {
         onSave={handleAddClientSave}
         data={newClient}
         onChange={handleClientChange}
-        type="client"  // Set type as 'client' to show client-related fields
+        type="client"  
       />
 
       <AddDialog

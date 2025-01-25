@@ -84,48 +84,6 @@ const MainDashboard = () => {
           </div>
         </div>
 
-        <div>
-          {/* Role-specific Sections */}
-          {/* {isTelecaller && (
-            <div className="h-24 rounded-md flex justify-between items-center bg-white shadow-xl border border-gray-300 my-2 hover:scale-105">
-              <div className="p-4">
-                <Avatar className="w-20 h-20">
-                  <AvatarFallback className="bg-pink-100">
-                    <TbUsersGroup className="w-8 h-8 text-pink-500" />
-                  </AvatarFallback>
-                </Avatar>
-              </div>
-              <div className="mr-2 p-4">
-                <p className="text-right font-bold text-pink-500 text-2xl font-poppins">
-                  34
-                </p>
-                <p className="text-left font-md font-poppins">
-                  Calls Made Today
-                </p>
-              </div>
-            </div>
-          )}
-
-          {isSales && (
-            <div className="h-24 rounded-md flex justify-between items-center bg-white shadow-xl border border-gray-300 my-2 hover:scale-105">
-              <div className="p-4">
-                <Avatar className="w-20 h-20">
-                  <AvatarFallback className="bg-orange-100">
-                    <TbUsersGroup className="w-8 h-8 text-orange-500" />
-                  </AvatarFallback>
-                </Avatar>
-              </div>
-              <div className="mr-2 p-4">
-                <p className="text-right font-bold text-orange-500 text-2xl font-poppins">
-                  8
-                </p>
-                <p className="text-left font-md font-poppins">
-                  New Clients Added
-                </p>
-              </div>
-            </div>
-          )} */}
-        </div>
       </div>
 
       <div>

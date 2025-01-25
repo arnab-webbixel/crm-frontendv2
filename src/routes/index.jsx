@@ -88,9 +88,9 @@ const router = createBrowserRouter(
             //   element: <Test2 />,
             // },
           element: (
-            <ProtectedRoute>
+            // <ProtectedRoute>
               <Dashboard />
-            </ProtectedRoute>
+            // </ProtectedRoute>
           ),
           children: [
             {

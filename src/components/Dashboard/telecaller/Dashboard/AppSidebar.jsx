@@ -47,7 +47,7 @@ const AppSidebar = ({ ...props }) => {
             icon: FaUserGroup,
             items: [
               {
-                title: "Add Client",
+                title: "Add Clients",
                 url: "/main/client/add",
               },
               {
@@ -55,7 +55,7 @@ const AppSidebar = ({ ...props }) => {
                 url: "/main/client/manage",
               },
               {
-                title: "Update Client",
+                title: "Add Remarks",
                 url: "/main/client/update",
               },
             ],
