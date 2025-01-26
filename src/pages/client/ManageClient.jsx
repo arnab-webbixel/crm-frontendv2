@@ -7,13 +7,51 @@ import AddDialog from '../../components/ui/AddDialog';
 import { useSelector, useDispatch } from 'react-redux';
 import {fetchClients, addClient, deleteClient} from "../../utils/store/clientSlice"
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
-
+import axios from 'axios'; 
 
 const ManageClient = () => {
    const dispatch = useDispatch();
+   const [file, setFile] = React.useState(null);
    const { clients, loading, error } = useSelector((state) => state.clients);
-
    const { user } = useSelector((state) => state.auth);
+
+   // Handle file selection
+  const handleFileChange = (e) => {
+    const selectedFile = e.target.files[0];
+    if (selectedFile) {
+      setFile(selectedFile);
+    }
+  };
+
+  // Handle file upload (bulk upload)
+  const handleBulkUpload = async () => {
+    if (!file) {
+      alert("Please select a file to upload.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      // Make API call to upload file
+      const response = await axios.post(
+        'https://crm.webbixel.com/clients/api/v1/bulk-uploads', 
+         formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      // After successful upload, fetch the updated client list
+      dispatch(fetchClients());
+      alert('Bulk upload successful!');
+    } catch (error) {
+      console.error('Bulk upload failed:', error);
+      alert('Failed to upload file. Please try again.');
+    }
+  };
+
 
    React.useEffect(() => {
 
@@ -277,7 +315,29 @@ const ManageClient = () => {
       <h1>ManageClient</h1>
       <div className="datagrid-container" ref={gridRef}
       onScroll={handleScroll} style={{ width: '100%', marginBottom: '20px', overflowX: '',}}>
-      
+        <Button
+          variant="contained"
+          color="primary"
+          component="label"
+          className="bg-blue-500 text-white hover:bg-blue-600"
+        >
+          Import
+          <input
+            type="file"
+            hidden
+            accept=".csv, .xlsx, .xls"  // Specify allowed file types (optional)
+            onChange={handleFileChange}
+          />
+        </Button>
+        <Button
+          variant="contained"
+          color="secondary"
+          onClick={handleBulkUpload}
+          disabled={!file}
+          className="bg-green-500 text-white hover:bg-green-600"
+        >
+          Upload
+        </Button>
             <DataGridDemo
               rows={rows}
               columns={columns}

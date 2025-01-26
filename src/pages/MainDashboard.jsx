@@ -2,11 +2,11 @@ import React, { useEffect, useState, useMemo } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { TbUsersGroup } from "react-icons/tb";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import PieChartCard from "@/components/ui/PieChartCard";
 import RadialChartCard from "@/components/ui/RadialChartCard";
 import { fetchCallStatsById } from "../utils/store/countSlice";
 import Calender from "@/components/calender/Calender";
 import CallStats from "@/components/ui/CallStats";
+import {TotalCall} from '@/components/ui/TotalCall'
 const MainDashboard = () => {
   const [apiData, setApiData] = useState([]);
   const { callStats, loading, error } = useSelector((state) => state.count);
@@ -54,12 +54,7 @@ const MainDashboard = () => {
       <div className="mt-4 grid grid-cols-4 gap-4">
         <div>
           {/* Show PieChartCard for all roles */}
-          <PieChartCard
-            title="Total call's count"
-            description="January - June 2024"
-            data={transformedChartData}
-            totalVisitors={totalVisitors}
-          />
+          <TotalCall />
         </div>
         <div className="h-120 w-100 ">
         <CallStats
