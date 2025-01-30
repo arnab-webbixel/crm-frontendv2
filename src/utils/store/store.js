@@ -9,7 +9,7 @@ import rootReducer from './index';
 const persistConfig = {
   key: 'root',    // Key to identify the persisted data
   storage,        // Storage type
-  whitelist: ['clients', 'auth', 'staff'],  // Specify which slices to persist
+  whitelist: ['clients', 'auth', 'staff',  'remarks'],  // Specify which slices to persist
   // blacklist: ['auth'],     // Optionally, exclude other slices like `auth`
 };
 

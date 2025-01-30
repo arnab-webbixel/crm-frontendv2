@@ -29,6 +29,7 @@ const AddDialog = ({ open, onClose, onSave, data, onChange, type }) => {
         { label: 'Service Type', name: 'service_type' },
         { label: 'Call Type', name: 'call_type', isSelect: true, options: Object.values(CallTypeEnum) },
         { label: 'Remarks', name: 'remarks' },
+        { label: 'Status', name: 'status', isSelect: true, options: ['Pending', 'In Progress', 'Follow-Up', 'Closed'] },
       ];
 
   return (

@@ -13,3 +13,36 @@ export const chartData = [
     
   ];
   
+
+export const remarks = [
+    {
+      id: '1',
+      // userName: 'Alice Johnson',
+      content: 'Just finished reviewing the latest deployment. Everything looks great! 🚀',
+      timestamp: '2024-01-27T15:00:00Z'
+    },
+    {
+      id: '2',
+      // userName: 'Bob Smith',
+      content: 'Has anyone else noticed the improved load times? The optimizations are really paying off.',
+      timestamp: '2024-01-27T14:30:00Z'
+    },
+    {
+      id: '3',
+      // userName: 'Carol Williams',
+      content: 'Quick update: all unit tests are passing now. Great work team! 👏',
+      timestamp: '2024-01-27T14:00:00Z'
+    },
+    {
+      id: '4',
+      // userName: 'David Brown',
+      content: 'Found a small bug in the login flow. Created a ticket to track it.',
+      timestamp: '2024-01-27T13:45:00Z'
+    },
+    {
+      id: '5',
+      // userName: 'Emma Davis',
+      content: 'The new feature is getting positive feedback from beta users! 🎉',
+      timestamp: '2024-01-27T13:30:00Z'
+    }
+  ];

@@ -5,7 +5,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import { Button } from '@mui/material';
 import AddDialog from '../../components/ui/AddDialog';
 import { useSelector, useDispatch } from 'react-redux';
-import {fetchClients, addClient, deleteClient} from "../../utils/store/clientSlice"
+import {fetchClients, addClient, deleteClient, updateClient} from "../../utils/store/clientSlice"
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import axios from 'axios'; 
 
@@ -72,6 +72,7 @@ const ManageClient = () => {
     call_type: '',
     remarks: '',
     schedule_date: '',
+    status: 'Pending', 
     created_by: '',  
   });
 
@@ -156,6 +157,22 @@ const ManageClient = () => {
       ),
     },
     {
+      field: 'status',
+      headerName: 'Status',
+      width: 120,
+      editable: false,
+      renderCell: (params) => (
+        <span style={{ 
+          color: params.value === 'Pending' ? 'Red' : 
+                 params.value === 'In Progress' ? 'Green' : 
+                 params.value === 'Active' ? 'green': 'yellow',
+          fontWeight: 'bold'
+        }}>
+          {params.value}
+        </span>
+      ),
+    },
+    {
       field: 'whatsapp',
       headerName: 'WhatsApp',
       width: 150,
@@ -206,6 +223,7 @@ const ManageClient = () => {
             schedule_date: client.schedule_date,
             remarks: remarks,  // Concatenated remarks
             whatsapp: client.phone,  // For WhatsApp link
+            status: client.status || 'NA',
           };
         });
       }
@@ -246,7 +264,7 @@ const ManageClient = () => {
         call_type: newClient.call_type || '', // Optional field
         remarks: newClient.remarks ? [{ comment: newClient.remarks }] : [], // Handle remarks array
         schedule_date: newClient.schedule_date || null, // Allow null for optional fields
-        status: 'Pending', // Assuming 'Pending' is a default status
+        status: newClient.status || 'Pending',
         // customer_id: newClient.customer_id || null, // Assuming you might 
       };
   
@@ -285,7 +303,15 @@ const ManageClient = () => {
   };
 
   const handleUpdate = (client) => {
-    setEditRow(client);  
+    setEditRow({
+      ...client,
+      // Safely handle both array and string formats
+      remarks: client.remarks 
+        ? Array.isArray(client.remarks)
+          ? client.remarks.map(r => r.comment).join(', ') // Handle array of objects
+          : client.remarks // Handle existing string
+        : ''
+    });  
     setEditClientDialog(true);  
   };
 
@@ -302,11 +328,68 @@ const ManageClient = () => {
   };
 
   // Handle Save action for updating client
-  const handleSave = () => {
-    // console.log('Saved edited row:', editRow);
-    // Here, update the rows array or send data to API
-    console.log('Save button clicked');
-    setEditClientDialog(false);  // Close the edit dialog
+  const handleSave = async () => {
+    if (!editRow?.company_name || !editRow?.phone || !editRow?.email) {
+      alert('Please fill in all required fields.');
+      return;
+    }
+
+    try {
+      const updatePayload = {
+        id: editRow.id, // The client ID to update
+        updatedData: {
+          name: editRow.name?.trim(),
+          company_name: editRow.company_name,
+          phone: editRow.phone,
+          email: editRow.email,
+          address: editRow.address,
+          landmark: editRow.landmark || '',
+          website: editRow.website || '',
+          industry_type: editRow.industry_type || '',
+          service_type: editRow.service_type || '',
+          call_type: editRow.call_type || '',
+          remarks: editRow.remarks 
+  ? editRow.remarks.split(', ').map(comment => ({ comment })) 
+  : [],
+          status: editRow.status || 'Pending',
+          schedule_date: editRow.schedule_date || null,
+        }
+      };
+
+      await dispatch(updateClient(updatePayload));
+      setEditClientDialog(false);
+      dispatch(fetchClients()); // Refresh the client list
+    } catch (error) {
+      console.error('Error updating client:', error);
+      alert('Failed to update client. Please try again.');
+    }
+
+
+  };
+
+  const handleDownloadCalendar = async () => {
+    try {
+      const response = await axios.get('https://crm.webbixel.com/clients/api/v1/calendar', {
+        responseType: 'blob', // Important for handling the file download as blob
+      });
+
+      // Create a temporary URL for the downloaded file
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      
+      // Create a link element to trigger the download
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'client_schedule.ics'); // File name to save
+      document.body.appendChild(link);
+      
+      // Trigger the download
+      link.click();
+      
+      // Clean up the link element
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error('Error downloading calendar:', error);
+    }
   };
 
   return (
@@ -338,16 +421,25 @@ const ManageClient = () => {
         >
           Upload
         </Button>
+        <Button
+        variant="contained"
+        color="default"
+        onClick={handleDownloadCalendar}
+        className="bg-blue-500 text-white hover:bg-blue-600 mt-4"
+      >
+         Schedule clients
+      </Button>
+        <div style={{ height: '130%', width: '90%' }}>
             <DataGridDemo
               rows={rows}
               columns={columns}
-              pageSize={5}
+              pageSize={10}
               getRowId={(row) => row._id}
               checkboxSelection
               disableSelectionOnClick
-              style={{ minWidth: 1000 }} 
+              // style={{ minWidth: 1000, }} 
             />
-
+          </div>
       </div>
        <Button
         variant="contained"
@@ -365,6 +457,7 @@ const ManageClient = () => {
         data={newClient}
         onChange={handleClientChange}
         type="client"  
+        isEdit={true}
       />
 
       <AddDialog

@@ -5,6 +5,7 @@ import clientReducer from './clientSlice';
 import countReducer from './countSlice'
 import staffSlice from './staffSlice';
 import roleSlice from './roleSlice';
+import remarkSlice  from './remarkSlice';
 import { combineReducers } from 'redux';
  const rootReducer = combineReducers({
 
@@ -14,6 +15,7 @@ import { combineReducers } from 'redux';
     count: countReducer,
     staff: staffSlice,
     role: roleSlice,
+    remarks: remarkSlice,
+ });
 
-});
 export default rootReducer;

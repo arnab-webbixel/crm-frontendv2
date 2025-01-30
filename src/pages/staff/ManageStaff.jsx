@@ -6,6 +6,7 @@ import { Button } from '@mui/material';
 import AddDialog from '../../components/ui/AddDialog';
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchStaffByUserId, createStaff, deleteStaff, updateStaff} from "../../utils/store/staffSlice"
+
 const ManageStaff = () => {
     
     const dispatch = useDispatch();
@@ -193,8 +194,10 @@ const ManageStaff = () => {
         onSave={handleSave}
         data={editRow}
         onChange={(e) => setEditRow((prev) => ({ ...prev, [e.target.name]: e.target.value }))}
-        type="staff"  // Set type as 'staff'
+        type="staff"  
       />
+
+      
     </div>
   );
 };

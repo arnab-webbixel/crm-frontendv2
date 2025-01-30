@@ -46,12 +46,12 @@ const router = createBrowserRouter(
       children: [
         {
           index: true,
-          element: <Login />,
-          // element: localStorage.getItem("token") ? (
-            // <Navigate to="/main/dashboard" />
-          // ) : (
-          //   <Login />
-          // ),
+          // element: <Login />,
+          element: localStorage.getItem("token") ? (
+            <Navigate to="/main/dashboard" />
+          ) : (
+            <Login />
+          ),
         },
         ,
         {

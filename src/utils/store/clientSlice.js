@@ -26,27 +26,50 @@ export const addClient = createAsyncThunk(
       });
       return response.data;  
     } catch (error) {
+      console.error(error + "Adding new client");
       return rejectWithValue(error.response?.data?.message || 'Failed to add client.');
     }
   }
 );
 // Thunk to update a client
-export const updateClient = (id, updatedClient) => async (dispatch) => {
-  dispatch(clientActions.setLoading(true));
-  try {
-    const response = await axios.put(`https://crm.webbixel.com/clients/api/v1/${id}`, updatedClient, {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
+// export const updateClient = (id, updatedClient) => async (dispatch) => {
+//   dispatch(clientActions.setLoading(true));
+//   try {
+//     const response = await axios.put(`https://crm.webbixel.com/clients/api/v1/${id}`, updatedClient, {
+//       headers: {
+//         'Content-Type': 'application/json',
+//       },
+//     });
 
-    dispatch(clientActions.updateClient({ id, updatedClient: response.data.data }));
-  } catch (error) {
-    dispatch(clientActions.setError(error.response?.data?.message || 'Failed to update client.'));
-  } finally {
-    dispatch(clientActions.setLoading(false));
+//     dispatch(clientActions.updateClient({ id, updatedClient: response.data.data }));
+//   } catch (error) {
+//     dispatch(clientActions.setError(error.response?.data?.message || 'Failed to update client.'));
+//   } finally {
+//     dispatch(clientActions.setLoading(false));
+//   }
+// };
+
+
+// Thunk to update a client
+export const updateClient = createAsyncThunk(
+  'clients/updateClient',
+  async ({ id, updatedData }, { rejectWithValue }) => {
+    try {
+      const response = await axios.put(
+        `https://crm.webbixel.com/clients/api/v1/${id}`, // Use template literal
+        updatedData,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+      return { id, updatedClient: response.data };
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to update client.');
+    }
   }
-};
+);
 
 // Thunk to delete a client
 export const deleteClient = createAsyncThunk(
@@ -132,23 +155,23 @@ const clientSlice = createSlice({
         state.error = action.payload || 'Failed to add client.';  // Set error if adding client fails
       })
 
-      // // Update client
-      // .addCase(updateClient.pending, (state) => {
-      //   state.loading = true;
-      //   state.error = null;
-      // })
-      // .addCase(updateClient.fulfilled, (state, action) => {
-      //   state.loading = false;
-      //   const { id, updatedClient } = action.payload;
-      //   const index = state.clients.findIndex((client) => client._id === id);
-      //   if (index !== -1) {
-      //     state.clients[index] = { ...state.clients[index], ...updatedClient };
-      //   }
-      // })
-      // .addCase(updateClient.rejected, (state, action) => {
-      //   state.loading = false;
-      //   state.error = action.payload || 'Failed to update client.';  // Set error if update fails
-      // })
+      // Update client
+      .addCase(updateClient.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateClient.fulfilled, (state, action) => {
+        state.loading = false;
+        const { id, updatedClient } = action.payload;
+        const index = state.clients.findIndex((client) => client._id === id);
+        if (index !== -1) {
+          state.clients[index] = { ...state.clients[index], ...updatedClient };
+        }
+      })
+      .addCase(updateClient.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || 'Failed to update client.';  // Set error if update fails
+      })
 
       // Delete client
       .addCase(deleteClient.pending, (state) => {

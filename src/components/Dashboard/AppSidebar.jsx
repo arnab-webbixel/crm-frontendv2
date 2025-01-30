@@ -70,7 +70,7 @@ const AppSidebar = ({ ...props }) => {
                 url: "/main/client/manage",
               },
               {
-                title: "Update Client",
+                title: "See remarks",
                 url: "/main/client/update",
               },
             ],

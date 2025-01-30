@@ -58,12 +58,6 @@ const MainDashboard = () => {
         </div>
         <div className="h-120 w-100 ">
         <CallStats
-        total={200}
-        delivered={70}
-        received={80}
-        cancelled={50}
-        trend={5.2}
-        date="12.12.2024"
       />
         </div>
 

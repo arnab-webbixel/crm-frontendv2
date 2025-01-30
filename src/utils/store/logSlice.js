@@ -27,7 +27,7 @@ export const fetchUserProfile = createAsyncThunk(
       const token = getState().auth.token;
       // console.log(token + "tokens sent");
       
-      const response = await axios.get(`http://46.202.163.75:3002/api/v1/user/profile/${userId}`);
+      const response = await axios.get(`https://crm.webbixel.com/auth/api/v1/user/profile/${userId}`);
       // console.log(response.data + " response in thunk");
       // console.log("Response data in thunk:", JSON.stringify(response.data, null, 2));
 
