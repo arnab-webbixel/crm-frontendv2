@@ -30,6 +30,7 @@ const AddDialog = ({ open, onClose, onSave, data, onChange, type }) => {
         { label: 'Call Type', name: 'call_type', isSelect: true, options: Object.values(CallTypeEnum) },
         { label: 'Remarks', name: 'remarks' },
         { label: 'Status', name: 'status', isSelect: true, options: ['Pending', 'In Progress', 'Follow-Up', 'Closed'] },
+        { label: 'Schedule Date & Time', name: 'schedule_date', type: 'datetime-local' },
       ];
 
   return (
@@ -60,6 +61,8 @@ const AddDialog = ({ open, onClose, onSave, data, onChange, type }) => {
               value={formData[name] || ''}
               onChange={onChange}
               margin="normal"
+              InputLabelProps={type === 'datetime-local' ? { shrink: true } : {}}
+
             />
           )
         ))}

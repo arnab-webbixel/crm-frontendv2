@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchClients } from '../../utils/store/clientSlice'; 
 import { AgGridReact } from 'ag-grid-react';
@@ -13,7 +13,7 @@ const UpdateClient = () => {
   const dispatch = useDispatch();
   const [selectedClientId, setSelectedClientId] = useState(null); 
   const [remarksVisible, setRemarksVisible] = useState(false); 
- 
+  const remarksRef = useRef(null);
   
 
 
@@ -30,6 +30,19 @@ const UpdateClient = () => {
     }
   }, [selectedClientId, dispatch]);
 
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (remarksRef.current && !remarksRef.current.contains(event.target)) {
+        setRemarksVisible(false); // Close the remarks panel
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const {remarks} = useSelector((state)=>state.remarks);
   console.log(JSON.stringify(remarks) + 'My remarks');
@@ -117,7 +130,10 @@ const UpdateClient = () => {
       />
     </div>
     {remarksVisible && selectedClientId && (
-        <RemarksList remarks={remarks} clientId={selectedClientId}  /> 
+      
+      <div ref={remarksRef}>
+      <RemarksList remarks={remarks} clientId={selectedClientId} />
+    </div>
       )}
     </div>
   );

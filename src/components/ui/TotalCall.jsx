@@ -27,6 +27,14 @@ const chartConfig = {
     label: "Warm Calls",
     color: "hsl(var(--chart-1))",
   },
+  "follow-up":{
+    label: "Follow-ups",
+    color: "hsl(var(--chart-4))",
+  },
+  "warm-call":{
+    label: "Hot Calls",
+    color: "hsl(var(--chart-5))",
+  },
   archive: {
     label: "Archived",
     color: "hsl(var(--chart-2))",
