@@ -31,7 +31,7 @@ const chartConfig = {
     label: "Follow-ups",
     color: "hsl(var(--chart-4))",
   },
-  "warm-call":{
+  "follow-up":{
     label: "Hot Calls",
     color: "hsl(var(--chart-5))",
   },
@@ -50,7 +50,7 @@ export function TotalCall() {
     const fetchData = async () => {
       try {
         const response = await fetch(
-          "https://crm.webbixel.com/clients/api/v1/call-counts?period=monthly"
+          "https://crm.webbixel.com/clients/api/v1/call-counts?period=total"
         );
         if (!response.ok) throw new Error('Failed to fetch');
         const json = await response.json();
@@ -84,7 +84,7 @@ export function TotalCall() {
   return (
     <Card className="flex flex-col">
       <CardHeader className="items-center pb-0">
-        <CardTitle>Total Calls This Month</CardTitle>
+        <CardTitle>Total Calls in Crm+</CardTitle>
         <CardDescription>
           {new Date().toLocaleString('default', { month: 'long' })} - {new Date().getFullYear()}
         </CardDescription>

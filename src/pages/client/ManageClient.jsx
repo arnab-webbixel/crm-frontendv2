@@ -7,13 +7,52 @@ import AddDialog from '../../components/ui/AddDialog';
 import { useSelector, useDispatch } from 'react-redux';
 import {fetchClients, addClient, deleteClient, updateClient} from "../../utils/store/clientSlice"
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
+import MessageIcon from '@mui/icons-material/Message';
+import RemarksList from '../remarks/RemarkList';
+import {fetchRemarks} from '../../utils/store/remarkSlice';
+import { formatDistanceToNow } from 'date-fns';
 import axios from 'axios'; 
-
 const ManageClient = () => {
    const dispatch = useDispatch();
    const [file, setFile] = React.useState(null);
    const { clients, loading, error } = useSelector((state) => state.clients);
    const { user } = useSelector((state) => state.auth);
+
+
+  // State and ref for remarks
+  const [selectedClientId, setSelectedClientId] = React.useState(null);
+  const [remarksVisible, setRemarksVisible] = React.useState(false);
+  const remarksRef = React.useRef(null);
+
+  // Fetch remarks when a client is selected
+  React.useEffect(() => {
+    if (selectedClientId) {
+      dispatch(fetchRemarks(selectedClientId));
+    }
+  }, [selectedClientId, dispatch]);
+
+  // Close the remarks panel when clicking outside
+  React.useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (remarksRef.current && !remarksRef.current.contains(event.target)) {
+        setRemarksVisible(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  const { remarks } = useSelector((state) => state.remarks);
+   // Handle MessageIcon click to show remarks
+   const handleRemarksClick = (clientId) => {
+    setSelectedClientId(clientId);
+    setRemarksVisible(true);
+    dispatch(fetchRemarks(clientId));
+  };
+  
+
 
    // Handle file selection
   const handleFileChange = (e) => {
@@ -110,7 +149,7 @@ const ManageClient = () => {
     {
       field: 'company_name',
       headerName: 'Company Name',
-      width: 180,
+      width: 140,
     },
     {
       field: 'phone',
@@ -121,8 +160,16 @@ const ManageClient = () => {
     {
       field: 'email',
       headerName: 'Email',
-      width: 200,
+      width: 160,
       editable: false,
+      renderCell: (params) => {
+        const email = params.value; // Get the email address from the row
+        return (
+          <a href={`mailto:${email}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+            {email}
+          </a>
+        );
+      },
     },
     {
       field: 'address',
@@ -156,6 +203,7 @@ const ManageClient = () => {
         <span>{params.value || 'No remarks'}</span>  // Display remarks or a default value
       ),
     },
+
     {
       field: 'status',
       headerName: 'Status',
@@ -188,12 +236,19 @@ const ManageClient = () => {
       ),
     },
     {
+      field: 'last_update',
+      headerName: 'Last Update',
+      width: 180,
+      editable: false,
+    },
+    {
       field: 'actions',
       headerName: 'Actions',
       width: 180,
       renderCell: (params) => (
         <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
           <button onClick={() => handleUpdate(params.row)}><EditIcon /></button>
+          <button onClick={() => handleRemarksClick(params.row.id)}><MessageIcon /></button>
           <button onClick={() => handleDelete(params.id)}><DeleteIcon /></button>
         </div>
       ),
@@ -205,11 +260,22 @@ const ManageClient = () => {
           // Ensure client._id exists to serve as the unique identifier for the row
           const clientId = client._id || client.phone || client.email || 'default_id';
           
+          let latestRemarkDate = '';
+          if (Array.isArray(client.remarks) && client.remarks.length > 0) {
+            // Sort the remarks array by date to get the latest remark
+            const sortedRemarks = [...client.remarks].sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            // Get the date of the latest remark
+            latestRemarkDate = sortedRemarks[0].date ? new Date(sortedRemarks[0].date).toLocaleString() : 'Never'; 
+          }
           // Convert the remarks array into a string of comments (if remarks exist)
           const remarks = Array.isArray(client.remarks)
             ? client.remarks.map((remark) => remark.comment).join(', ') 
             : '';
-    
+
+
+          // latestRemarkDate = client.updatedAt ? formatDistanceToNow(new Date(client.updatedAt)) : 'Never';
+
           return {
             id: clientId,  // Unique identifier for each row
             name: client.name,  
@@ -224,6 +290,7 @@ const ManageClient = () => {
             remarks: remarks,  // Concatenated remarks
             whatsapp: client.phone,  // For WhatsApp link
             status: client.status || 'NA',
+            last_update: latestRemarkDate || 'Never' ,
           };
         });
       }
@@ -393,7 +460,7 @@ const ManageClient = () => {
   };
 
   return (
-    <div className='h-[90vh]'>
+    <div className='h-auto'>
       
       <h1>ManageClient</h1>
       <div className="datagrid-container" ref={gridRef}
@@ -408,7 +475,7 @@ const ManageClient = () => {
           <input
             type="file"
             hidden
-            accept=".csv, .xlsx, .xls"  // Specify allowed file types (optional)
+            accept=".csv, .xlsx, .xls"  
             onChange={handleFileChange}
           />
         </Button>
@@ -437,7 +504,6 @@ const ManageClient = () => {
               getRowId={(row) => row._id}
               checkboxSelection
               disableSelectionOnClick
-              // style={{ minWidth: 1000, }} 
             />
           </div>
       </div>
@@ -468,7 +534,11 @@ const ManageClient = () => {
         onChange={(e) => setEditRow((prev) => ({ ...prev, [e.target.name]: e.target.value }))}
         type="client"  
       />
-
+    {remarksVisible && selectedClientId && (
+        <div ref={remarksRef}>
+          <RemarksList remarks={remarks} clientId={selectedClientId} />
+        </div>
+      )}
     </div>
   )
 }

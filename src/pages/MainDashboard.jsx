@@ -7,6 +7,7 @@ import { fetchCallStatsById } from "../utils/store/countSlice";
 import Calender from "@/components/calender/Calender";
 import CallStats from "@/components/ui/CallStats";
 import {TotalCall} from '@/components/ui/TotalCall'
+import UpdatedCall from "@/components/ui/UpdatedCall";
 const MainDashboard = () => {
   const [apiData, setApiData] = useState([]);
   const { callStats, loading, error } = useSelector((state) => state.count);
@@ -26,9 +27,10 @@ const MainDashboard = () => {
 
   const transformedChartData = useMemo(() => {
     const colorMap = {
-      archive: "#E9D4FE",
+      "archive": "#E9D4FE",
       "hot-call": "#4b0082",
       "warm-call": "#EC4899",
+      "follow-up": "#32CD32", 
     };
 
     return apiData.map((item) => ({
@@ -59,6 +61,10 @@ const MainDashboard = () => {
         <div className="h-120 w-100 ">
         <CallStats
       />
+        </div>
+
+        <div>
+          <UpdatedCall/>
         </div>
 
         <div>

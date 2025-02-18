@@ -1,4 +1,4 @@
-import  { useEffect } from 'react'
+import  { useEffect, useState } from 'react'
 import AppSidebar from "@/components/Dashboard/AppSidebar"
 import {
   Breadcrumb,
@@ -36,6 +36,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import { fetchUserProfile } from "@/utils/store/logSlice"; 
 import useDarkMode from '@/hooks/useDarkMode';
 import {logout} from '../../assets'
+import AnimatedListDemo from '../Notification/AnimatedListDemo'
 const Dashboard = () => {
 
   const { breadcrumb } = useBreadcrumb();
@@ -43,8 +44,8 @@ const Dashboard = () => {
   const dispatch = useDispatch();
   const { profile, user, loading } = useSelector((state) => state.auth);
   const profileData = JSON.parse(JSON.stringify(profile));
-//* for darkmode 
-const [darkMode, toggleDarkMode] = useDarkMode(); 
+  const [darkMode, toggleDarkMode] = useDarkMode(); 
+  const [showNotifications, setShowNotifications] = useState(false);
 
 useEffect(()=>{
   const token = localStorage.getItem('token');
@@ -61,6 +62,12 @@ useEffect(()=>{
     localStorage.removeItem('token');
     navigate('/login');
   };
+
+  // Toggle notifications visibility
+  const handleNotificationsClick = () => {
+    setShowNotifications(!showNotifications);
+  };
+
 
 
   return (
@@ -95,7 +102,7 @@ useEffect(()=>{
           </div>
 
           <div className='flex gap-2 mr-6 cursor-pointer '>
-             <NotificationsIcon className='w-7 h-'/>
+             <NotificationsIcon className='w-7' onClick={handleNotificationsClick} />
              <NightlightRoundIcon 
 className={`w-7 h-7 cursor-pointer ${darkMode ? 'text-yellow-400' : 'text-gray-500'}`}
              onClick={toggleDarkMode} 
@@ -150,6 +157,13 @@ className={`w-7 h-7 cursor-pointer ${darkMode ? 'text-yellow-400' : 'text-gray-5
 
           </div>
         </header>
+
+          {/* Render Notifications component when showNotifications is true */}
+        {showNotifications && (
+          <div className="absolute top-16 right-6 z-20 bg-white p-4 shadow-lg rounded-lg max-h-[500px] overflow-y-auto">
+            <AnimatedListDemo />
+          </div>
+        )}
 
 
         {/* Main content area */}

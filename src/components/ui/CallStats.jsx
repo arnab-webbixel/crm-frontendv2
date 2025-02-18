@@ -27,6 +27,8 @@ const CallStats = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  console.log("clal data : ", totalCalls)
+
   const radius = 80;
   const circumference = 2 * Math.PI * radius;
   const strokeWidth = 15;
@@ -86,7 +88,7 @@ const CallStats = () => {
         </button>
       </div>
 
-      <div className="relative flex justify-center my-8">
+      <div className="relative flex justify-center my-8  ">
         <svg width="250" height="250" viewBox="0 0 250 250">
           <circle
             cx="125"
@@ -115,18 +117,20 @@ const CallStats = () => {
               style={{ strokeLinecap: 'round' }}
             />
           ))}
+          </svg>
 
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center">
-            <div className="text-4xl font-bold text-gray-800 dark:text-gray-100">
-              {totalCalls}
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center ">
+            <div className="text-4xl font-bold text-gray-700 dark:text-gray-100">
+              {totalCalls} 
             </div>
             <div className="text-sm text-gray-950 dark:text-gray-400">Total Calls</div>
           </div>
-        </svg>
+        
       </div>
 
       <div className="flex flex-col gap-3 mt-6">
         {callData.map(item => (
+          
           <div key={item._id} className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div 
@@ -138,7 +142,7 @@ const CallStats = () => {
               </span>
             </div>
             <span className="text-sm font-medium text-gray-800 dark:text-gray-200">
-              {item.count}
+              {item.count} 
             </span>
           </div>
         ))}

@@ -58,19 +58,15 @@ const AppSidebar = ({ ...props }) => {
           },
           {
             title: "Client Info",
-            url: "/main/client",
+            url: "/main/client/manage",
             icon: FaUserGroup,
             items: [
-              {
-                title: "Add Client",
-                url: "/main/client/add",
-              },
               {
                 title: "Manage Client",
                 url: "/main/client/manage",
               },
               {
-                title: "See remarks",
+                title: "Schedule Client's",
                 url: "/main/client/update",
               },
             ],
